@@ -92,17 +92,14 @@ import { Hero } from '~/components/Hero'
 import { LoggedIndex } from '~/components/LoggedIndex'
 import { useState } from 'react';
 import { MantineProvider, ColorSchemeProvider, ColorScheme } from '@mantine/core';
-
+import { useSession } from 'next-auth/react';
 const Home = () => {
-  const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
-  const toggleColorScheme = (value?: ColorScheme) =>
-    setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
+  const {data: session, status} = useSession()
+  console.log(status);
+  
+  
   return (
-    <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
-      <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
-        <Hero />
-      </MantineProvider>
-    </ColorSchemeProvider>
+    status === "authenticated" ? <LoggedIndex /> : <Hero />
   )
 }
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import React from 'react'
 import { useToggle, upperFirst } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
@@ -20,8 +21,13 @@ import {
 } from '@mantine/core';
 import { IconBrandGoogle, IconBrandDiscord } from '@tabler/icons-react';
 import Image from 'next/image';
+import { signIn } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 
 const Login = () => {
+  const {data, status} = useSession()
+  console.log(data, status)
+  
   
     return (
       <Container>
@@ -37,7 +43,7 @@ const Login = () => {
                 </div>
                 <div className='flex flex-row mt-7 w-full justify-center items-center'>
                     <div className='flex justify-center items-center w-[70%] gap-8'>
-                    <Button leftIcon={<IconBrandGoogle size={20}/>} variant='default'>Google</Button>
+                    <Button leftIcon={<IconBrandGoogle size={20}/>} onClick={()=>signIn("google", {callbackUrl: "http://localhost:3000"})} variant='default'>Google</Button>
                     <Button leftIcon={<IconBrandDiscord size={20}/>} variant='default'>Discord</Button>
                     </div>
                 </div>

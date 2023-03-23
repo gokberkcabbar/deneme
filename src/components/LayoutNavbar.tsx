@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import React from 'react'
 import { useState } from 'react';
 import {
@@ -13,15 +14,26 @@ import {
   Group,
   em,
   ActionIcon,
-  Container
+  Container,
+  Button,
+  rem,
 } from '@mantine/core';
-import { IconSunHigh } from '@tabler/icons-react';
 import Image from 'next/image';
 import { ThemeChanger } from './ThemeChanger';
+import { signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
+import {Dancing_Script} from "next/font/google"
+
+const ds = Dancing_Script({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-cursive",
+  display: "swap"
+})
 
 export const LayoutNavbar = ({children}:{children:React.ReactNode}) => {
     const theme = useMantineTheme();
     const [opened, setOpened] = useState(false);
+    const {data: session} = useSession()
     return (
       <AppShell
         styles={{
@@ -33,7 +45,9 @@ export const LayoutNavbar = ({children}:{children:React.ReactNode}) => {
         asideOffsetBreakpoint="sm"
         navbar={
           <Navbar p="md" hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 200, lg: 300 }}>
-            <Text>Application navbar</Text>
+            <div className='flex flex-col w-48 items-start text-3xl' style={ds.style}>
+              {session?.user.name}
+            </div>
           </Navbar>
         }
 
@@ -57,7 +71,12 @@ export const LayoutNavbar = ({children}:{children:React.ReactNode}) => {
                         </div>
                         <Text className='font-mono text-xl'>KamTo</Text>
                     </div>
-                    <ThemeChanger />                 
+                    <div className='flex flex-row gap-8 items-center justify-center'>
+                    <ThemeChanger />
+                    <Button onClick={()=>signOut({callbackUrl: "http://localhost:3000/"})} radius='lg' color='red'>
+                      Çıkış Yap
+                    </Button>
+                    </div>              
                 </div>
             </div>
           </Header>

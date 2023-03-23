@@ -9,6 +9,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
+import { getToken } from "next-auth/jwt";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -38,24 +39,45 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session({ session, user }) {
+    jwt({ token, account, profile, user }) {
+      // Persist the OAuth access_token and or the user id to the token right after signin
+      
+      if (account && user) {
+        token.id = user.id
+        token.email = user.email
+      }
+      return token
+    },
+     session({ session, user }) {
       if (session.user) {
-        session.user.id = user.id;
+        session.user.id = user.id
+        session.user.email = user.email
         // session.user.role = user.role; <-- put other properties on the session here
+        
       }
       return session;
     },
+    
+    },
+    jwt: {
+      maxAge: 60 * 60 * 8
+    },
+  pages: {
+    signIn: "/login",
+    newUser: "/login"
   },
   adapter: PrismaAdapter(prisma),
   providers: [
     DiscordProvider({
       clientId: env.DISCORD_CLIENT_ID,
       clientSecret: env.DISCORD_CLIENT_SECRET,
+      allowDangerousEmailAccountLinking: true
     }),
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!
-    })
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
+      allowDangerousEmailAccountLinking: true
+    }),
     /**
      * ...add more providers here.
      *
@@ -66,6 +88,7 @@ export const authOptions: NextAuthOptions = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
+  
 };
 
 /**
